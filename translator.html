@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+
+        select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .convert-btn, .clear-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .convert-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .clear-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .convert-btn:hover, .clear-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .convert-btn:active, .clear-btn:active {
+            transform: translateY(0);
+        }
+
+        .convert-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-section {
+            margin-top: 25px;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 120px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .result-box.has-content {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-color: #667eea;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-style: italic;
+        }
+
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .language-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .api-notice {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #1565c0;
+        }
+
+        .google-translate-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .google-translate-element {
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            .button-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌍 Language Converter</h1>
+        
+        <div class="api-notice">
+            <strong>📝 How to use:</strong> This translator includes a built-in dictionary for common phrases and a Google Translate widget below for comprehensive translation.
+        </div>
+        
+        <div class="input-section">
+            <label for="inputText">Enter text to translate:</label>
+            <textarea id="inputText" placeholder="Type common phrases like: hello, thank you, good morning, how are you, etc."></textarea>
+        </div>
+
+        <div class="input-section">
+            <label for="targetLanguage">Translate to:</label>
+            <select id="targetLanguage">
+                <option value="hi">Hindi (हिंदी)</option>
+                <option value="en">English</option>
+                <option value="es">Spanish (Español)</option>
+                <option value="fr">French (Français)</option>
+                <option value="de">German (Deutsch)</option>
+                <option value="ja">Japanese (日本語)</option>
+                <option value="ko">Korean (한국어)</option>
+                <option value="zh">Chinese (中文)</option>
+                <option value="ar">Arabic (العربية)</option>
+                <option value="ru">Russian (Русский)</option>
+                <option value="it">Italian (Italiano)</option>
+                <option value="pt">Portuguese (Português)</option>
+                <option value="tr">Turkish (Türkçe)</option>
+                <option value="nl">Dutch (Nederlands)</option>
+                <option value="sv">Swedish (Svenska)</option>
+                <option value="th">Thai (ไทย)</option>
+                <option value="vi">Vietnamese (Tiếng Việt)</option>
+                <option value="id">Indonesian (Bahasa Indonesia)</option>
+                <option value="bn">Bengali (বাংলা)</option>
+                <option value="ta">Tamil (தமிழ்)</option>
+                <option value="te">Telugu (తెలుగు)</option>
+                <option value="gu">Gujarati (ગુજરાતી)</option>
+                <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
+                <option value="mr">Marathi (मराठी)</option>
+                <option value="ur">Urdu (اردو)</option>
+            </select>
+        </div>
+
+        <div class="button-group">
+            <button class="convert-btn" onclick="translateText()">
+                <span id="btnText">Convert Language</span>
+            </button>
+            <button class="clear-btn" onclick="clearText()">Clear</button>
+        </div>
+
+        <div class="result-section">
+            <div class="language-info">
+                <label>Translation Result:</label>
+                <button class="copy-btn" id="copyBtn" onclick="copyResult()" style="display: none;">Copy</button>
+            </div>
+            <div class="result-box" id="resultBox">
+                <div class="loading" id="loading">Translating...</div>
+                <div id="translatedText">Try common phrases like "hello", "thank you", "good morning", "how are you", "goodbye", etc.</div>
+            </div>
+        </div>
+
+        <div class="google-translate-container">
+            <h3>🔄 Alternative: Google Translate Widget</h3>
+            <p>For more comprehensive translation, use Google Translate below:</p>
+            <div id="google_translate_element"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        const translations = {
+            'hello': {
+                'hi': 'नमस्ते (Namaste)', 'es': 'Hola', 'fr': 'Bonjour', 'de': 'Hallo', 'ja': 'こんにちは (Konnichiwa)',
+                'ko': '안녕하세요 (Annyeonghaseyo)', 'zh': '你好 (Nǐ hǎo)', 'ar': 'مرحباً (Marhaban)', 'ru': 'Привет (Privet)',
+                'it': 'Ciao', 'pt': 'Olá', 'tr': 'Merhaba', 'nl': 'Hallo', 'sv': 'Hej', 'th': 'สวัสดี (Sawasdee)',
+                'vi': 'Xin chào', 'id': 'Halo', 'bn': 'হ্যালো (Hello)', 'ta': 'வணக்கம் (Vanakkam)', 'te': 'హలో (Hello)',
+                'gu': 'હેલો (Hello)', 'pa': 'ਸਤ ਸ੍ਰੀ ਅਕਾਲ (Sat Sri Akal)', 'mr': 'नमस्कार (Namaskar)', 'ur': 'السلام علیکم (Assalamu Alaikum)'
+            },
+            'good morning': {
+                'hi': 'सुप्रभात (Suprabhat)', 'es': 'Buenos días', 'fr': 'Bonjour', 'de': 'Guten Morgen', 'ja': 'おはようございます (Ohayo gozaimasu)',
+                'ko': '좋은 아침입니다 (Joeun achim-imnida)', 'zh': '早上好 (Zǎoshang hǎo)', 'ar': 'صباح الخير (Sabah al-khayr)', 'ru': 'Доброе утро (Dobroye utro)',
+                'it': 'Buongiorno', 'pt': 'Bom dia', 'tr': 'Günaydın', 'nl': 'Goedemorgen', 'sv': 'God morgon', 'th': 'อรุณสวัสดิ์ (Arun sawat)',
+                'vi': 'Chào buổi sáng', 'id': 'Selamat pagi', 'bn': 'সুপ্রভাত (Suprabhat)', 'ta': 'காலை வணக்கம் (Kalai vanakkam)', 'te': 'శుభోదయం (Subhodayam)',
+                'gu': 'સુપ્રભાત (Suprabhat)', 'pa': 'ਸਵੇਰ ਦੀ ਸਤ ਸ੍ਰੀ ਅਕਾਲ (Saver di Sat Sri Akal)', 'mr': 'सुप्रभात (Suprabhat)', 'ur': 'صبح بخیر (Subah bakhair)'
+            },
+            'thank you': {
+                'hi': 'धन्यवाद (Dhanyawad)', 'es': 'Gracias', 'fr': 'Merci', 'de': 'Danke', 'ja': 'ありがとうございます (Arigatou gozaimasu)',
+                'ko': '감사합니다 (Gamsahamnida)', 'zh': '谢谢 (Xièxiè)', 'ar': 'شكراً (Shukran)', 'ru': 'Спасибо (Spasibo)', 'it': 'Grazie',
+                'pt': 'Obrigado', 'tr': 'Teşekkür ederim', 'nl': 'Dank je', 'sv': 'Tack', 'th': 'ขอบคุณ (Khob khun)', 'vi': 'Cảm ơn',
+                'id': 'Terima kasih', 'bn': 'ধন্যবাদ (Dhonnobad)', 'ta': 'நன்றி (Nandri)', 'te': 'ధన్యవాదాలు (Dhanyavadalu)', 'gu': 'આભાર (Abhar)',
+                'pa': 'ਧੰਨਵਾਦ (Dhannawad)', 'mr': 'धन्यवाद (Dhanyawad)', 'ur': 'شکریہ (Shukriya)'
+            },
+            'how are you': {
+                'hi': 'आप कैसे हैं? (Aap kaise hain?)', 'es': '¿Cómo estás?', 'fr': 'Comment allez-vous?', 'de': 'Wie geht es dir?', 'ja': '元気ですか？ (Genki desu ka?)',
+                'ko': '어떻게 지내세요? (Eotteoke jinaeseyo?)', 'zh': '你好吗？ (Nǐ hǎo ma?)', 'ar': 'كيف حالك؟ (Kayf halak?)', 'ru': 'Как дела? (Kak dela?)',
+                'it': 'Come stai?', 'pt': 'Como você está?', 'tr': 'Nasılsın?', 'nl': 'Hoe gaat het?', 'sv': 'Hur mår du?', 'th': 'สบายดีไหม? (Sabai dee mai?)',
+                'vi': 'Bạn khỏe không?', 'id': 'Apa kabar?', 'bn': 'আপনি কেমন আছেন? (Apni kemon achen?)', 'ta': 'எப்படி இருக்கிறீர்கள்? (Eppadi irukkireergal?)',
+                'te': 'మీరు ఎలా ఉన్నారు? (Meeru ela unnaru?)', 'gu': 'તમે કેમ છો? (Tame kem cho?)', 'pa': 'ਤੁਸੀਂ ਕਿਵੇਂ ਹੋ? (Tusi kiven ho?)',
+                'mr': 'तुम्ही कसे आहात? (Tumhi kase ahat?)', 'ur': 'آپ کیسے ہیں؟ (Aap kaise hain?)'
+            },
+            'goodbye': {
+                'hi': 'अलविदा (Alvida)', 'es': 'Adiós', 'fr': 'Au revoir', 'de': 'Auf Wiedersehen', 'ja': 'さようなら (Sayonara)',
+                'ko': '안녕히 가세요 (Annyeonghi gaseyo)', 'zh': '再见 (Zàijiàn)', 'ar': 'وداعاً (Wada\'an)', 'ru': 'До свидания (Do svidaniya)',
+                'it': 'Arrivederci', 'pt': 'Tchau', 'tr': 'Hoşça kal', 'nl': 'Tot ziens', 'sv': 'Hej då', 'th': 'ลาก่อน (La gon)',
+                'vi': 'Tạm biệt', 'id': 'Selamat tinggal', 'bn': 'বিদায় (Biday)', 'ta': 'பிரியாவிடை (Priyavidai)', 'te': 'వీడ్కోలు (Veedkolu)',
+                'gu': 'વિદાય (Viday)', 'pa': 'ਅਲਵਿਦਾ (Alvida)', 'mr': 'निरोप (Nirop)', 'ur': 'الوداع (Alvida)'
+            },
+            'yes': {
+                'hi': 'हाँ (Haan)', 'es': 'Sí', 'fr': 'Oui', 'de': 'Ja', 'ja': 'はい (Hai)', 'ko': '네 (Ne)', 'zh': '是 (Shì)',
+                'ar': 'نعم (Na\'am)', 'ru': 'Да (Da)', 'it': 'Sì', 'pt': 'Sim', 'tr': 'Evet', 'nl': 'Ja', 'sv': 'Ja',
+                'th': 'ใช่ (Chai)', 'vi': 'Có', 'id': 'Ya', 'bn': 'হ্যাঁ (Haan)', 'ta': 'ஆம் (Aam)', 'te': 'అవును (Avunu)',
+                'gu': 'હા (Haa)', 'pa': 'ਹਾਂ (Haan)', 'mr': 'होय (Hoy)', 'ur': 'ہاں (Haan)'
+            },
+            'no': {
+                'hi': 'नहीं (Nahin)', 'es': 'No', 'fr': 'Non', 'de': 'Nein', 'ja': 'いいえ (Iie)', 'ko': '아니요 (Aniyo)',
+                'zh': '不 (Bù)', 'ar': 'لا (La)', 'ru': 'Нет (Net)', 'it': 'No', 'pt': 'Não', 'tr': 'Hayır', 'nl': 'Nee',
+                'sv': 'Nej', 'th': 'ไม่ (Mai)', 'vi': 'Không', 'id': 'Tidak', 'bn': 'না (Na)', 'ta': 'இல்லை (Illai)',
+                'te': 'లేదు (Ledu)', 'gu': 'ના (Na)', 'pa': 'ਨਹੀਂ (Nahin)', 'mr': 'नाही (Nahi)', 'ur': 'نہیں (Nahin)'
+            },
+            'please': {
+                'hi': 'कृपया (Kripaya)', 'es': 'Por favor', 'fr': 'S\'il vous plaît', 'de': 'Bitte', 'ja': 'お願いします (Onegaishimasu)',
+                'ko': '부탁합니다 (Butakhamnida)', 'zh': '请 (Qǐng)', 'ar': 'من فضلك (Min fadlik)', 'ru': 'Пожалуйста (Pozhaluysta)',
+                'it': 'Per favore', 'pt': 'Por favor', 'tr': 'Lütfen', 'nl': 'Alsjeblieft', 'sv': 'Snälla', 'th': 'โปรด (Prod)',
+                'vi': 'Xin mời', 'id': 'Tolong', 'bn': 'দয়া করে (Doya kore)', 'ta': 'தயவுசெய்து (Thayavu seithu)', 'te': 'దయచేసి (Dayachesi)',
+                'gu': 'કૃપા કરીને (Krupa karine)', 'pa': 'ਕਿਰਪਾ ਕਰਕੇ (Kirpa karke)', 'mr': 'कृपया (Kripaya)', 'ur': 'برائے کرم (Baraye karam)'
+            },
+            'sorry': {
+                'hi': 'माफ़ करें (Maaf karen)', 'es': 'Lo siento', 'fr': 'Désolé', 'de': 'Entschuldigung', 'ja': 'すみません (Sumimasen)',
+                'ko': '죄송합니다 (Joesonghamnida)', 'zh': '对不起 (Duìbùqǐ)', 'ar': 'آسف (Asef)', 'ru': 'Извините (Izvinite)', 'it': 'Scusa',
+                'pt': 'Desculpa', 'tr': 'Özür dilerim', 'nl': 'Sorry', 'sv': 'Förlåt', 'th': 'ขอโทษ (Kho thot)', 'vi': 'Xin lỗi',
+                'id': 'Maaf', 'bn': 'দুঃখিত (Dukkhito)', 'ta': 'மன்னிக்கவும் (Mannikkavum)', 'te': 'క్షమించండి (Kshamimchandi)',
+                'gu': 'માફ કરો (Maaf karo)', 'pa': 'ਮਾਫ਼ ਕਰਨਾ (Maaf karna)', 'mr': 'माफ करा (Maaf kara)', 'ur': 'معاف کیجیے (Maaf kijiye)'
+            },
+            'good night': {
+                'hi': 'शुभ रात्रि (Shubh ratri)', 'es': 'Buenas noches', 'fr': 'Bonne nuit', 'de': 'Gute Nacht', 'ja': 'おやすみなさい (Oyasuminasai)',
+                'ko': '안녕히 주무세요 (Annyeonghi jumuseyo)', 'zh': '晚安 (Wǎn\'ān)', 'ar': 'تصبح على خير (Tusbih \'ala khayr)', 'ru': 'Спокойной ночи (Spokoynoy nochi)',
+                'it': 'Buona notte', 'pt': 'Boa noite', 'tr': 'İyi geceler', 'nl': 'Goedenacht', 'sv': 'God natt', 'th': 'ราตรีสวัสดิ์ (Ratri sawat)',
+                'vi': 'Chúc ngủ ngon', 'id': 'Selamat malam', 'bn': 'শুভ রাত্রি (Shubh ratri)', 'ta': 'இனிய இரவு (Iniya iravu)', 'te': 'శుభ రాత్రి (Shubha ratri)',
+                'gu': 'શુભ રાત્રિ (Shubh ratri)', 'pa': 'ਸ਼ੁਭ ਰਾਤ (Shubh raat)', 'mr': 'शुभ रात्री (Shubh ratri)', 'ur': 'شب بخیر (Shab bakhair)'
+            },
+            'excuse me': {
+                'hi': 'क्षमा करें (Kshama karen)', 'es': 'Perdón', 'fr': 'Excusez-moi', 'de': 'Entschuldigung', 'ja': 'すみません (Sumimasen)',
+                'ko': '실례합니다 (Sillyehamnida)', 'zh': '对不起 (Duìbùqǐ)', 'ar': 'عفواً (Afwan)', 'ru': 'Извините (Izvinite)', 'it': 'Scusa',
+                'pt': 'Com licença', 'tr': 'Affedersiniz', 'nl': 'Pardon', 'sv': 'Ursäkta', 'th': 'ขอโทษ (Kho thot)', 'vi': 'Xin lỗi',
+                'id': 'Permisi', 'bn': 'মাফ করবেন (Maf korben)', 'ta': 'மன்னிக்கவும் (Mannikkavum)', 'te': 'క్షమించండి (Kshamimchandi)',
+                'gu': 'માફ કરો (Maaf karo)', 'pa': 'ਮਾਫ਼ ਕਰਨਾ (Maaf karna)', 'mr': 'माफ करा (Maaf kara)', 'ur': 'معاف کیجیے (Maaf kijiye)'
+            },
+            'i don\'t understand': {
+                'hi': 'मुझे समझ नहीं आया (Mujhe samajh nahi aaya)', 'es': 'No entiendo', 'fr': 'Je ne comprends pas', 'de': 'Ich verstehe nicht',
+                'ja': '分かりません (Wakarimasen)', 'ko': '이해 못했어요 (Ihae mothaesseoyo)', 'zh': '我不明白 (Wǒ bù míngbái)', 'ar': 'لا أفهم (La afham)',
+                'ru': 'Я не понимаю (Ya ne ponimayu)', 'it': 'Non capisco', 'pt': 'Não entendo', 'tr': 'Anlamıyorum', 'nl': 'Ik begrijp het niet',
+                'sv': 'Jag förstår inte', 'th': 'ฉันไม่เข้าใจ (Chan mai khao jai)', 'vi': 'Tôi không hiểu', 'id': 'Saya tidak mengerti',
+                'bn': 'আমি বুঝতে পারছি না (Ami bujhte parchi na)', 'ta': 'எனக்கு புரியவில்லை (Enakku puriyavillai)', 'te': 'నాకు అర్థం కాలేదు (Naaku artham kaaledu)',
+                'gu': 'મને સમજાતું નથી (Mane samjhatun nathi)', 'pa': 'ਮੈਨੂੰ ਸਮਝ ਨਹੀਂ ਆਉਂਦੀ (Mainu samajh nahi aundi)', 'mr': 'मला समजत नाही (Mala samjat nahi)',
+                'ur': 'میں سمجھ نہیں پایا (Main samajh nahi paya)'
+            },
+            'where is the bathroom': {
+                'hi': 'बाथरूम कहाँ है? (Bathroom kahan hai?)', 'es': '¿Dónde está el baño?', 'fr': 'Où sont les toilettes?', 'de': 'Wo ist die Toilette?',
+                'ja': 'トイレはどこですか？ (Toire wa doko desu ka?)', 'ko': '화장실이 어디예요? (Hwajangsiri eodiyeyo?)', 'zh': '洗手间在哪里？ (Xǐshǒujiān zài nǎlǐ?)',
+                'ar': 'أين الحمام؟ (Ayna al-hammam?)', 'ru': 'Где туалет? (Gde tualet?)', 'it': 'Dov\'è il bagno?', 'pt': 'Onde fica o banheiro?',
+                'tr': 'Banyo nerede?', 'nl': 'Waar is de wc?', 'sv': 'Var är toaletten?', 'th': 'ห้องน้ำอยู่ที่ไหน? (Hong nam yoo tee nai?)',
+                'vi': 'Nhà vệ sinh ở đâu?', 'id': 'Di mana kamar mandi?', 'bn': 'বাথরুম কোথায়? (Bathroom kothay?)', 'ta': 'குளியலறை எங்கே உள்ளது? (Kuliyalari enge ullathu?)',
+                'te': 'బాత్‌రూమ్ ఎక్కడ ఉంది? (Bathroom ekkada undi?)', 'gu': 'બાથરૂમ ક્યાં છે? (Bathroom kyaan che?)', 'pa': 'ਬਾਥਰੂਮ ਕਿੱਥੇ ਹੈ? (Bathroom kithe hai?)',
+                'mr': 'बाथरूम कुठे आहे? (Bathroom kuthe ahe?)', 'ur': 'باتھ روم کہاں ہے؟ (Bathroom kahan hai?)'
+            },
+            'how much does this cost': {
+                'hi': 'इसकी कीमत कितनी है? (Iski keemat kitni hai?)', 'es': '¿Cuánto cuesta esto?', 'fr': 'Combien ça coûte?', 'de': 'Wie viel kostet das?',
+                'ja': 'これはいくらですか？ (Kore wa ikura desu ka?)', 'ko': '이거 얼마예요? (Igeo eolmayeyo?)', 'zh': '这个多少钱？ (Zhège duōshǎo qián?)',
+                'ar': 'كم سعر هذا؟ (Kam si‘r hatha?)', 'ru': 'Сколько это стоит? (Skol\'ko eto stoit?)', 'it': 'Quanto costa questo?', 'pt': 'Quanto custa isso?',
+                'tr': 'Bu ne kadar?', 'nl': 'Hoeveel kost dit?', 'sv': 'Hur mycket kostar det?', 'th': 'นี่ราคาเท่าไหร่? (Nee rakhathao rai?)',
+                'vi': 'Cái này bao nhiêu tiền?', 'id': 'Berapa harganya?', 'bn': 'এটার দাম কত? (Etar dam koto?)', 'ta': 'இது எவ்வளவு செலவாகும்? (Idhu evvalavu selavaagum?)',
+                'te': 'ఇది ఎంత ఖర్చు అవుతుంది? (Idi entha kharchu avutundi?)', 'gu': 'આની કિંમત કેટલી છે? (Aani kimat ketli che?)', 'pa': 'ਇਸ ਦੀ ਕੀਮਤ ਕਿੰਨੀ ਹੈ? (Is di keemat kinni hai?)',
+                'mr': 'याची किंमत किती आहे? (Yachi kimat kiti ahe?)', 'ur': 'اس کی قیمت کتنی ہے؟ (Is ki keemat kitni hai?)'
+            }
+        };
+
+        function translateText() {
+            const inputText = document.getElementById('inputText').value.trim().toLowerCase();
+            const targetLang = document.getElementById('targetLanguage').value;
+            const resultBox = document.getElementById('resultBox');
+            const translatedTextDiv = document.getElementById('translatedText');
+            const loading = document.getElementById('loading');
+            const convertBtn = document.querySelector('.convert-btn');
+            const btnText = document.getElementById('btnText');
+            const copyBtn = document.getElementById('copyBtn');
+
+            if (!inputText) {
+                alert('Please enter some text to translate!');
+                return;
+            }
+
+            loading.style.display = 'block';
+            translatedTextDiv.style.display = 'none';
+            convertBtn.disabled = true;
+            btnText.textContent = 'Converting...';
+            copyBtn.style.display = 'none';
+            resultBox.classList.remove('has-content', 'error');
+
+            setTimeout(() => {
+                let translation = null;
+                let foundPhrase = null;
+                let suggestions = [];
+
+                if (translations[inputText]) {
+                    translation = translations[inputText][targetLang];
+                    foundPhrase = inputText;
+                } else {
+                    for (const phrase in translations) {
+                        if (phrase.includes(inputText) || inputText.includes(phrase)) {
+                            suggestions.push(phrase);
+                        }
+                    }
+                }
+
+                loading.style.display = 'none';
+                translatedTextDiv.style.display = 'block';
+                convertBtn.disabled = false;
+                btnText.textContent = 'Convert Language';
+
+                if (translation) {
+                    translatedTextDiv.innerHTML = `
+                        <div style="margin-bottom: 10px;">
+                            <strong>✅ Translation found:</strong>
+                        </div>
+                        <div style="font-size: 18px; color: #2c3e50; font-weight: 600;">
+                            ${translation}
+                        </div>
+                        <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                            Matched phrase: "${foundPhrase}"
+                        </div>
+                    `;
+                    resultBox.classList.add('has-content');
+                    copyBtn.style.display = 'block';
+                } else if (suggestions.length > 0) {
+                    translatedTextDiv.innerHTML = `
+                        <div style="color: #f39c12; margin-bottom: 10px;">
+                            <strong>⚠️ Exact match not found</strong>
+                        </div>
+                        <div style="font-size: 14px; line-height: 1.6;">
+                            Did you mean:<br>
+                            ${suggestions.map(s => `<button onclick="setInputText('${s}')">${s}</button>`).join('<br>')}
+                        </div>
+                    `;
+                    resultBox.classList.add('error');
+                } else {
+                    translatedTextDiv.innerHTML = `
+                        <div style="color: #f39c12; margin-bottom: 10px;">
+                            <strong>⚠️ Translation not found in dictionary</strong>
+                        </div>
+                        <div style="font-size: 14px; line-height: 1.6;">
+                            Try one of these supported phrases:<br><br>
+                            <strong>Common phrases:</strong><br>
+                            • hello, good morning, good night<br>
+                            • thank you, please, sorry, excuse me<br>
+                            • how are you, goodbye, yes, no<br>
+                            • I don’t understand, where is the bathroom, how much does this cost<br><br>
+                            <strong>Or use the Google Translate widget below</strong> for comprehensive translation.
+                        </div>
+                    `;
+                    resultBox.classList.add('error');
+                }
+            }, 1000);
+        }
+
+        function setInputText(text) {
+            document.getElementById('inputText').value = text;
+            translateText();
+        }
+
+        function clearText() {
+            const inputText = document.getElementById('inputText');
+            const translatedTextDiv = document.getElementById('translatedText');
+            const resultBox = document.getElementById('resultBox');
+            const copyBtn = document.getElementById('copyBtn');
+
+            inputText.value = '';
+            translatedTextDiv.innerHTML = 'Try common phrases like "hello", "thank you", "good morning", "how are you", "goodbye", etc.';
+            resultBox.classList.remove('has-content', 'error');
+            copyBtn.style.display = 'none';
+            inputText.style.height = 'auto';
+        }
+
+        function copyResult() {
+            const translatedText = document.getElementById('translatedText').textContent;
+            const copyBtn = document.getElementById('copyBtn');
+            
+            navigator.clipboard.writeText(translatedText).then(() => {
+                copyBtn.textContent = 'Copied!';
+                copyBtn.style.background = '#17a2b8';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.style.background = '#28a745';
+                }, 2000);
+            }).catch(() => {
+                alert('Failed to copy text. Please select and copy manually.');
+            });
+        }
+
+        document.getElementById('inputText').addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                translateText();
+            }
+        });
+
+        document.getElementById('inputText').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 300) + 'px';
+        });
+
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,hi,es,fr,de,ja,ko,zh,ar,ru,it,pt,tr,nl,sv,th,vi,id,bn,ta,te,gu,pa,mr,ur',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>
